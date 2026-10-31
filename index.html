@@ -22,7 +22,7 @@ h2{font-size:1rem;margin:0 0 10px}
 select{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;font:inherit;min-height:40px}
 @supports(appearance:base-select){
 select,::picker(select){appearance:base-select}
-.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
+.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx h3{margin:12px 0 8px;font-size:1rem}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
 select{display:inline-flex;align-items:center;justify-content:space-between;inline-size:9rem;gap:.5rem;padding:.4rem .8rem;font-weight:700}
 select::picker-icon{color:var(--mut);transition:rotate .2s}
 select:open::picker-icon{rotate:180deg}
@@ -98,7 +98,7 @@ SP.forEach(function(s){
   var p=document.createElement("div");p.className=k==="soccer"?"p sc":"p";p.hidden=true;m.appendChild(p);o.p=p;
   s[4].forEach(function(l,i){
     var c=document.createElement("section");
-    c.innerHTML=(l[1]?'<h2></h2>':'')+'<div class="g"></div><div class="e" hidden>No live or completed games today.</div><div class="nx" hidden><p></p><div class="g"></div></div>';
+    c.innerHTML=(l[1]?'<h2></h2>':'')+'<div class="g"></div><div class="e" hidden>No live or completed games today.</div><div class="nx" hidden><p></p><div class="gs"></div></div>';
     if(l[1])c.firstChild.textContent=l[1];
     if(i)p.appendChild(document.createElement("hr"));
     p.appendChild(c);
@@ -123,11 +123,13 @@ function nxt(o,L,ev){
   var k=pre.map(function(x){return x.id}).join();
   if(k!==L.nk){L.nk=k;
     L.nx.firstChild.textContent="Next games: "+d0.toLocaleDateString([],DF)+" ("+pre.length+(pre.length>1?" games)":" game)");
-    var g=L.nx.lastChild;g.textContent="";
-    pre.slice(0,12).forEach(function(ev){
+    var gs=L.nx.lastChild,B2=[["🌅","Early morning",7],["☀️","Morning",12],["🌞","Afternoon",17],["🌇","Evening",20],["🌙","Night",99]],cur=-1,g;gs.textContent="";
+    pre.forEach(function(ev){
+      var dt=new Date(ev.date),hr=dt.getHours(),bi=hr<4?4:hr<7?0:hr<12?1:hr<17?2:hr<20?3:4;
+      if(bi!==cur){cur=bi;var h=document.createElement("h3");h.textContent=B2[bi][0]+" "+B2[bi][1];gs.appendChild(h);g=document.createElement("div");g.className="g";gs.appendChild(g)}
       var cs=ev.competitions[0].competitors.slice().sort(function(a,b){return(a.homeAway==="home")===home?-1:1}),x=document.createElement("article");
       x.className="c";x.innerHTML='<div class="s"><b></b></div>'+team(cs[0])+team(cs[1])+'<div class="m"></div>';
-      x.querySelector("b").textContent=new Date(ev.date).toLocaleTimeString([],TF);
+      x.querySelector("b").textContent=dt.toLocaleTimeString([],TF);
       x.querySelectorAll(".t i").forEach(function(i){i.textContent=""});
       x.querySelector(".m").textContent=meta(o.k,cs,ev,L);g.appendChild(x)})}
   L.nx.hidden=false;return 1}
