@@ -60,6 +60,7 @@ hr{border:0;border-top:1px solid var(--bd);margin:0}
 .s b{color:var(--mut)}.s b.lv{color:var(--live)}
 .t{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-weight:600}
 .t img{width:24px;height:24px;margin-right:8px;vertical-align:middle}
+.ha{margin-left:8px;color:var(--mut);font-size:.65rem;font-weight:700;letter-spacing:.04em}
 .t i{font-style:normal;font-size:1.3rem;font-variant-numeric:tabular-nums}
 .m{color:var(--mut);font-size:.75rem;line-height:1.3;min-height:1.3em;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);overflow-wrap:anywhere;white-space:pre-line}
 .e{color:var(--mut);font-size:.9rem}.e[hidden]{display:none}
@@ -113,7 +114,7 @@ function meta(k,cs,ev,L){
   nt=(ev.competitions[0].notes||[])[0],h=nt&&nt.headline||"";
   var nm=cs.map(function(c){return(c.team||{}).displayName}).filter(Boolean).join(" vs ");
   return [nm,[g,h].filter(Boolean).join(" · ")].filter(Boolean).join("\n")}
-function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'<span class="w" aria-label="Winner"></span></span><i>'+esc(c.score)+'</i></div>'}
+function team(c){var t=c.team||{},ha=c.homeAway==="home"?"HOME":c.homeAway==="away"?"AWAY":"";return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+(ha?'<small class="ha">'+ha+'</small>':"")+'<span class="w" aria-label="Winner"></span></span><i>'+esc(c.score)+'</i></div>'}
 var DF={weekday:"short",month:"short",day:"numeric"},TF={hour:"numeric",minute:"2-digit"};
 function nxt(o,L,ev){
   var pre=ev.filter(function(x){return x.status&&x.status.type&&x.status.type.state==="pre"}).sort(function(a,b){return new Date(a.date)-new Date(b.date)});
