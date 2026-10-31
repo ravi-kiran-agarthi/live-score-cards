@@ -39,6 +39,7 @@ hr{border:0;border-top:1px solid var(--bd);margin:0}
 .t{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-weight:600}
 .t img{width:24px;height:24px;margin-right:8px;vertical-align:middle}
 .t i{font-style:normal;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.m{color:var(--mut);font-size:.75rem;min-height:1.1em;margin-bottom:4px}
 .e{color:var(--mut);font-size:.9rem}
 #u{padding:0 16px 16px;color:var(--mut);font-size:.75rem;min-height:1.5em}
 </style>
@@ -60,7 +61,7 @@ SP=[
 ["soccer","Soccer","⚽",15000,[["soccer/eng.1","Premier League"],["soccer/esp.1","La Liga"],["soccer/ger.1","Bundesliga"],["soccer/ita.1","Serie A"],["soccer/fra.1","Ligue 1"]]]
 ],
 n=document.getElementById("n"),m=document.getElementById("m"),u=document.getElementById("u"),th=document.getElementById("th"),
-S={},act,timer,hidden0=document.hidden;
+G={"nfl": "AFC East:BUF MIA NE NYJ|AFC North:BAL CIN CLE PIT|AFC South:HOU IND JAX TEN|AFC West:DEN KC LAC LV|NFC East:DAL NYG PHI WSH|NFC North:CHI DET GB MIN|NFC South:ATL CAR NO TB|NFC West:ARI LAR SEA SF", "nba": "East · Atlantic:BKN BOS NY PHI TOR|East · Central:CHI CLE DET IND MIL|East · Southeast:ATL CHA MIA ORL WSH|West · Northwest:DEN MIN OKC POR UTAH|West · Pacific:GS LAC LAL PHX SAC|West · Southwest:DAL HOU MEM NO SA", "wnba": "East:ATL CHI CON IND NY TOR WSH|West:DAL GS LA LV MIN PHX POR SEA", "mlb": "AL East:BAL BOS NYY TB TOR|AL Central:CHW CLE DET KC MIN|AL West:ATH HOU LAA SEA TEX|NL East:ATL MIA NYM PHI WSH|NL Central:CHC CIN MIL PIT STL|NL West:ARI COL LAD SD SF"},GM={},S={},act,timer;
 th.value=localStorage.getItem("theme")||"system";
 th.onchange=function(){var v=th.value,d=document.documentElement;if(v==="system"){localStorage.removeItem("theme");delete d.dataset.theme}else{localStorage.setItem("theme",v);d.dataset.theme=v}};
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -79,6 +80,13 @@ SP.forEach(function(s){
     o.L.push({path:l[0],g:c.querySelector(".g"),e:c.querySelector(".e"),els:{},live:0});
   });
 });
+function grp(k,c){
+  if(!GM[k]){GM[k]={};(G[k]||"").split("|").forEach(function(x){if(!x)return;var p=x.split(":");p[1].split(" ").forEach(function(a){GM[k][a]=p[0]})})}
+  return GM[k][(c.team||{}).abbreviation]||""}
+function meta(k,cs,ev,L){
+  var a=grp(k,cs[0]),b=grp(k,cs[1]),g=a&&b?(a===b?a:a+" vs "+b):a||b||(k==="soccer"?"":""),
+  nt=(ev.competitions[0].notes||[])[0],h=nt&&nt.headline||"";
+  return [g,h].filter(Boolean).join(" · ")}
 function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'</span><i>'+esc(c.score)+'</i></div>'}
 function render(o,L,events){
   var seen={},els=L.els,home=o.k==="soccer",
@@ -87,7 +95,7 @@ function render(o,L,events){
     var cs=ev.competitions[0].competitors.slice().sort(function(a,b){return(a.homeAway==="home")===home?-1:1}),x=els[ev.id];
     seen[ev.id]=1;
     if(!x){x=els[ev.id]=document.createElement("article");x.className="c";
-      x.innerHTML='<div class="s"><b>● LIVE</b><span class="d"></span></div>'+team(cs[0])+team(cs[1]);L.g.appendChild(x)}
+      x.innerHTML='<div class="s"><b>● LIVE</b><span class="d"></span></div><div class="m"></div>'+team(cs[0])+team(cs[1]);x.querySelector(".m").textContent=meta(o.k,cs,ev,L);L.g.appendChild(x)}
     var d=x.querySelector(".d"),dv=ev.status.type.shortDetail||"";if(d.textContent!==dv)d.textContent=dv;
     var sc=x.querySelectorAll(".t i");cs.forEach(function(c,i){var v=String(c.score);if(sc[i].textContent!==v)sc[i].textContent=v});
   });
