@@ -25,7 +25,7 @@ function norm(sp,e){
   if(sr&&sr.competitors)sr.competitors.forEach(function(x){w[x.id]=x.wins});
   return{id:e.id,d:e.date,st:e.status.type.state,det:e.status.type.shortDetail||"",post:!!e.season&&e.season.slug==="post-season",
     r:rd(sp,n&&n.headline),sm:sr&&sr.summary||"",
-    t:c.competitors.slice().sort(function(a,b){return a.homeAway===b.homeAway?0:a.homeAway==="away"?-1:1}).map(function(x){var t=x.team||{};return{a:t.abbreviation||"TBD",l:t.logo||"",s:x.score,w:w[x.id]}})}
+    t:c.competitors.slice().sort(function(a,b){return a.homeAway===b.homeAway?0:a.homeAway==="away"?-1:1}).map(function(x){var t=x.team||{};return{a:t.abbreviation||"TBD",l:t.logo||"",s:x.score,w:w[x.id],k:!!x.winner}})}
 }
 function day(sp,ds){
   var k="bk1:"+sp+":"+ds,c;
@@ -76,7 +76,7 @@ function real(sp,evs){
     s.ev.sort(function(a,b){return a.d<b.d?-1:1});
     var lv=s.ev.filter(function(e){return e.st==="in"})[0],last=lv||s.ev[s.ev.length-1],ws=last.t[0].w!=null,m;
     m=lv?"● LIVE · "+lv.det+(ws?" · "+lv.t[0].a+" "+lv.t[0].s+"–"+lv.t[1].a+" "+lv.t[1].s:""):(last.sm||last.det);
-    return{r:s.r,live:!!lv,m:m,o:s.ev[0].d,t:last.t.map(function(x){return{a:x.a,l:x.l,v:x.w!=null?x.w:(last.st==="pre"?"":x.s)}})};
+    return{r:s.r,live:!!lv,m:m,o:s.ev[0].d,t:last.t.map(function(x){var sw=ws?/wins/i.test(last.sm)&&x.w>=Math.max(last.t[0].w,last.t[1].w):last.st==="post"&&x.k;return{a:x.a,l:x.l,k:!lv&&sw,v:x.w!=null?x.w:(last.st==="pre"?"":x.s)}})};
   });
 }
 function sideOf(sp,c){
@@ -120,7 +120,7 @@ function proj(sp){
   });
 }
 function row(t){
-  return'<div class="t"><span>'+(t.l?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.l)+'">':"")+esc(t.a)+(t.n?"<small>#"+t.n+"</small>":"")+"</span><i>"+esc(t.v)+"</i></div>";
+  return'<div class="t"><span>'+(t.l?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.l)+'">':"")+esc(t.a)+(t.k?" 🎉":"")+(t.n?"<small>#"+t.n+"</small>":"")+"</span><i>"+esc(t.v)+"</i></div>";
 }
 function card(c){
   if(c.tbd)return'<li class="bc tbd"><div class="bm">TBD</div><div class="t"><span>TBD</span></div><div class="t"><span>TBD</span></div></li>';
