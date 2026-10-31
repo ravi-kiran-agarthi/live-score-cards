@@ -16,7 +16,21 @@ cur,timer,tok=0,sig="",el=L.el,
 old=new Date(Date.now()-2*864e5).toISOString().slice(0,10).replace(/-/g,"");
 var st=document.createElement("style");
 st.textContent=".bk{display:flex;gap:40px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 0 12px}.bcol{flex:0 0 240px;display:flex;flex-direction:column;scroll-snap-align:start}.bk>:first-child{margin-left:auto}.bk>:last-child{margin-right:auto}.bcol h3{text-align:center;font-size:.75rem;color:var(--mut);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em}.bcol ol{list-style:none;margin:0;padding:0;flex:1;display:flex;flex-direction:column}.sl{flex:1 1 0;display:flex;align-items:center;position:relative;padding:6px 0}.sl .bc{width:100%}.bc{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}.bc.lv{border-color:var(--live)}.bc.tbd{opacity:.5}.bc .t i{font-size:1.1rem}.bf{color:var(--mut);font-size:.75rem;line-height:1.3;min-height:1.3em;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);overflow-wrap:anywhere}.bc small{color:var(--mut);font-weight:400;margin-left:6px}.bm{color:var(--mut);font-size:.72rem;margin-bottom:4px;min-height:1.2em}.lv .bm{color:var(--live);font-weight:600}.bn{color:var(--mut);font-size:.85rem;margin:12px 0}.lf .sl:after,.rt .sl:after{content:'';position:absolute;top:50%;width:20px;border-top:2px solid var(--mut)}.lf .sl:after{left:100%}.rt .sl:after{right:100%}.lf .sl:before,.rt .sl:before{content:'';position:absolute;width:0;border-left:2px solid var(--mut)}.lf .sl:before{left:calc(100% + 18px)}.rt .sl:before{right:calc(100% + 18px)}.sl:nth-child(odd):before{top:50%;bottom:0}.sl:nth-child(even):before{top:0;bottom:50%}.il .bc:before,.ir .bc:after{content:'';position:absolute;top:50%;width:20px;border-top:2px solid var(--mut)}.il .bc:before{right:100%}.ir .bc:after{left:100%}.sl:only-child:before{display:none}";
+st.textContent+=".tm{margin:8px 0 24px;min-height:320px}.tm h3{font-size:.95rem;margin:16px 0 8px}.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}.tg div{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}.tg h4{margin:0 0 6px;font-size:.8rem;color:var(--mut)}.tg ul{list-style:none;margin:0;padding:0;font-size:.85rem;line-height:1.6}";
 document.head.appendChild(st);
+var TM={},lastP;
+function teams(sp){
+  if(TM[sp]!=null)return;TM[sp]="";
+  J("https://site.api.espn.com/apis/v2/sports/"+P[sp]+"/standings?level=3").then(function(j){
+    var h="";
+    (j.children||[]).forEach(function(c){
+      var ds=c.children||[{name:"",standings:c.standings}];
+      h+="<h3>"+esc(c.name)+"</h3><div class=tg>"+ds.map(function(d){
+        return"<div>"+(d.name?"<h4>"+esc(d.name)+"</h4>":"")+"<ul>"+((d.standings||{}).entries||[]).map(function(e){var t=e.team||{};return"<li>"+esc(t.displayName)+"</li>"}).sort().join("")+"</ul></div>"}).join("")+"</div>"});
+    TM[sp]=h?'<section class="tm"><h2>Conferences, divisions and teams</h2>'+h+"</section>":"";
+    if(lastP){sig="";paint.apply(null,lastP)}
+  }).catch(function(){TM[sp]=null});
+}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function J(u){return fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})}
 function rd(sp,h){var a=RD[sp];for(var i=a.length;i--;)if(a[i][1].test(h||""))return i;return -1}
@@ -133,6 +147,7 @@ function col(h,cs,cl){
   if(/\b(lf|rt)\b/.test(cl)&&cs.length>1&&cs.length%2)cs=[{bye:1}].concat(cs);
   return'<section class="bcol '+cl+'"><h3>'+esc(h)+"</h3><ol>"+cs.map(card).join("")+"</ol></section>"}
 function paint(sp,cols,live){
+  lastP=[sp,cols,live];teams(sp);
   var rn=RD[sp].length,sd=SD[sp],h="",r;
   if(sd){
     for(r=0;r<rn-1;r++)h+=col(sd[0]+" "+RD[sp][r][0],cols[r][0],"lf"+(r?" il":""));
@@ -143,7 +158,7 @@ function paint(sp,cols,live){
   if(h===sig)return;
   sig=h;
   var o=el.querySelector(".bk"),sl=o?o.scrollLeft:0;
-  el.innerHTML=h;
+  el.innerHTML=h+(TM[sp]||'<section class="tm"></section>');
   el.querySelector(".bk").scrollLeft=sl;
 }
 function run(){
