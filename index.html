@@ -126,7 +126,8 @@ function nxt(o,L,ev){
   pre=pre.filter(function(x){return new Date(x.date).toDateString()===ds});
   var k=pre.map(function(x){return x.id}).join();
   if(k!==L.nk){L.nk=k;
-    L.nx.firstChild.textContent="Next games: "+d0.toLocaleDateString([],DF)+" ("+pre.length+(pre.length>1?" games)":" game)");
+    var today=new Date(),istoday=d0.getFullYear()===today.getFullYear()&&d0.getMonth()===today.getMonth()&&d0.getDate()===today.getDate();
+    L.nx.firstChild.textContent="Next games: "+d0.toLocaleDateString([],DF)+" ("+pre.length+(pre.length>1?" games)":" game)")+(istoday?", Today!":"");
     var gs=L.nx.lastChild,B2=[["🌅","Early morning",7],["☀️","Morning",12],["🌞","Afternoon",17],["🌇","Evening",20],["🌙","Night",99]],cur=-1,g;gs.textContent="";
     pre.forEach(function(ev){
       var dt=new Date(ev.date),hr=dt.getHours(),bi=hr<4?4:hr<7?0:hr<12?1:hr<17?2:hr<20?3:4;
