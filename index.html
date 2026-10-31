@@ -32,7 +32,7 @@ a.live .dot{visibility:visible}
 .vw a[aria-current=page]{border-color:var(--fg)}
 .vw a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 #bk{padding:0 16px;min-height:480px}
-.vw[hidden],#bk[hidden]{display:none}
+.vw[hidden],#bk[hidden],.vw a[hidden]{display:none}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 main{padding:0 16px}
 .p[hidden]{display:none}
@@ -56,7 +56,7 @@ footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.
 <header><h1>Live Score Cards</h1>
 <select id="th" aria-label="Theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></header>
 <nav id="n" aria-label="Sports"></nav>
-<div class="vw" id="vw" hidden><a id="va">Live</a><a id="vb">Bracket</a><a id="vt">Teams</a></div>
+<div class="vw" id="vw" hidden><a id="va">Live</a><a id="vb">Bracket</a><a id="vt">Teams</a><a id="vs" hidden>Standings</a></div>
 <main id="m"></main>
 <div id="bk" hidden></div>
 <div id="u" role="status"></div>
@@ -156,7 +156,7 @@ wnba:"East/West: conferences. #n: playoff seed. Series text like 'ATL wins serie
 mlb:"AL/NL: American/National League. NLWC/ALWC: Wild Card Series. NLDS/ALDS: Division Series. NLCS/ALCS: Championship Series. #n: playoff seed. Top/Bot: top/bottom of the inning.",
 soccer:"FT: full time. HT: half time. ET: extra time. Pen: penalties."},fp=document.getElementById("fp");
 function route(){
-  var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",m=k!=="soccer"&&(h[1]==="bracket"?"show":h[1]==="teams"?"teams":""),b=!!m;
+  var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",m=k==="soccer"?(h[1]==="teams"?"teams":h[1]==="table"?"table":""):(h[1]==="bracket"?"show":h[1]==="teams"?"teams":""),b=!!m;
   if(act!==S[k]){
     if(act){act.p.hidden=true;act.a.removeAttribute("aria-current")}
     act=S[k];act.a.setAttribute("aria-current","page");
@@ -165,9 +165,9 @@ function route(){
     u.textContent=act.upd;
     if(act.last)act.last=0;
   }
-  vw.hidden=k==="soccer";
-  va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";
-  [[va,""],[vb,"show"],[vt,"teams"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
+  vw.hidden=false;vb.hidden=k==="soccer";vs.hidden=k!=="soccer";
+  va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";vs.href="#"+k+"/table";
+  [[va,""],[vb,"show"],[vt,"teams"],[vs,"table"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
   act.p.hidden=b;bk.hidden=!b;
   if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
