@@ -115,8 +115,10 @@ function meta(k,cs,ev,L){
   var nn=cs.slice().sort(function(x,y){return(x.homeAway==="away"?0:1)-(y.homeAway==="away"?0:1)}).map(function(c){return(c.team||{}).displayName}).filter(Boolean),
   c0=ev.competitions[0],fin=/super bowl|world series|\bfinals?\b|championship/i.test(h)&&!/conference|semi|quarter|division|league champ/i.test(h),
   nm=nn.join(c0.neutralSite||fin?" vs ":" at "),v=c0.venue||{},ad=v.address||{},
-  vn=fin&&v.fullName?"📍 "+[v.fullName,ad.city,ad.state||ad.country].filter(Boolean).join(", "):"";
-  return [nm,[g,h].filter(Boolean).join(" · "),vn].filter(Boolean).join("\n")}
+  vn=fin&&v.fullName?"📍 "+[v.fullName,ad.city,ad.state||ad.country].filter(Boolean).join(", "):"",
+  bn=[],br=(c0.broadcasts||[]).forEach(function(x){(x.names||[]).forEach(function(n){if(n&&bn.indexOf(n)<0)bn.push(n)})}),
+  bc=bn.length?"📺 "+bn.join(", "):"";
+  return [nm,[g,h].filter(Boolean).join(" · "),vn,bc].filter(Boolean).join("\n")}
 function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'<span class="b" aria-hidden="true"></span><span class="w" aria-label="Winner"></span></span><i>'+esc(c.score)+'</i></div>'}
 var DF={weekday:"short",month:"short",day:"numeric"},TF={hour:"numeric",minute:"2-digit"};
 function nxt(o,L,ev){
