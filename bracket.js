@@ -5,7 +5,7 @@ P={nfl:"football/nfl",nba:"basketball/nba",wnba:"basketball/wnba",mlb:"baseball/
 RD={
 nfl:[["Wild Card",/wild/i],["Divisional",/divis/i],["Conference",/conf/i],["Super Bowl",/super/i]],
 nba:[["First Round",/1st|first/i],["Semifinals",/semi/i],["Conf. Finals",/\bfinals\b/i],["NBA Finals",/nba finals/i]],
-mlb:[["Wild Card",/wild/i],["Division Series",/division|[an]lds/i],["Championship Series",/champ|[an]lcs/i],["World Series",/world/i]],
+mlb:[["Wild Card",/wild|[an]lwc/i],["Division Series",/division|[an]lds/i],["Championship Series",/champ|[an]lcs/i],["World Series",/world/i]],
 wnba:[["First Round",/1st|first/i],["Semifinals",/semi/i],["WNBA Finals",/\bfinals\b/i]]},
 SD={nfl:["AFC","NFC"],nba:["East","West"],mlb:["AL","NL"]},
 EX={nfl:[3,2,1,1],nba:[4,2,1,1],mlb:[2,2,1,1],wnba:[4,2,1]},
@@ -46,7 +46,9 @@ function loadDays(sp,part){
     an=((j.day||{}).date||"").replace(/-/g,""),
     out=(j.events||[]).map(function(e){return norm(sp,e)});
     if(out.length&&!out.some(function(e){return e.post}))return out;
-    var past=cal.filter(function(d){return d<an}).reverse(),fut=cal.filter(function(d){return d>an}).slice(0,8);
+    var past=[],pd=new Date((an?an.slice(0,4)+"-"+an.slice(4,6)+"-"+an.slice(6,8):new Date().toISOString().slice(0,10))+"T12:00:00Z");
+    for(var q=0;q<70;q++){pd=new Date(pd-864e5);past.push(pd.toISOString().slice(0,10).replace(/-/g,""))}
+    var fut=cal.filter(function(d){return d>an}).slice(0,8);
     function batch(ds){return Promise.all(ds.map(function(d){return day(sp,d)}))}
     function back(i){
       if(i>=past.length||i>=70)return;
