@@ -159,9 +159,8 @@ function render(o,L,events){
     var sit=isl?ev.competitions[0].situation:0,sd=ev.status.type.shortDetail||"",bat="",sx="";
     if(sit){
       if(o.k==="nfl"){var pid=String(sit.possession||"");bat=pid;sx=sit.shortDownDistanceText||sit.downDistanceText||"";if(sit.isRedZone)sx+=" 🔴"}
-      else if(o.k==="mlb"&&sit.outs!=null){bat=/^top/i.test(sd)?"away":/^bot/i.test(sd)?"home":"";var bs=[sit.onFirst&&"1st",sit.onSecond&&"2nd",sit.onThird&&"3rd"].filter(Boolean);sx=(sit.balls||0)+"-"+(sit.strikes||0)+", "+sit.outs+" out"+(bs.length?" · on "+bs.join(", "):"")}
     }
-    var bk2=x.querySelectorAll(".b");cs.forEach(function(c,i){var on=bat&&(bat===String((c.team||{}).id)||bat===c.homeAway),bv=on?(o.k==="mlb"?" ⚾":" 🏈"):"";if(bk2[i].textContent!==bv)bk2[i].textContent=bv});
+    var bk2=x.querySelectorAll(".b");cs.forEach(function(c,i){var on=bat&&(bat===String((c.team||{}).id)||bat===c.homeAway),bv=on?" 🏈":"";if(bk2[i].textContent!==bv)bk2[i].textContent=bv});
     var d=x.querySelector(".d"),dv=isl?(sd+(sx?" · "+sx:"")):"";if(d.textContent!==dv)d.textContent=dv;
     var sc=x.querySelectorAll(".t i"),ws=x.querySelectorAll(".w");cs.forEach(function(c,i){var wv=!isl&&c.winner?" 🎉":"";if(ws[i].textContent!==wv)ws[i].textContent=wv;var v=String(c.score);if(sc[i].textContent!==v)sc[i].textContent=v});
   });
