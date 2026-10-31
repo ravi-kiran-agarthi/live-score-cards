@@ -38,6 +38,8 @@ main{padding:0 16px}
 .p[hidden]{display:none}
 section{padding:16px 0}
 hr{border:0;border-top:1px solid var(--bd);margin:0}
+@media(min-width:700px){.p.sc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;align-items:start}.p.sc hr{display:none}.p.sc section{border-top:1px solid var(--bd)}.p.sc .g{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:1100px){.p.sc{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));column-gap:12px}
 .c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px;display:grid;grid-row:span 4;grid-template-rows:auto auto auto auto}
 @supports(grid-template-rows:subgrid){.c{grid-template-rows:subgrid;row-gap:0}}
@@ -79,7 +81,7 @@ SP.forEach(function(s){
   var a=document.createElement("a");a.href="#"+k;
   a.innerHTML='<span class="ic" aria-hidden="true">'+s[2]+'</span>'+s[1]+'<span class="dot" aria-hidden="true"></span><span class="vh"></span>';
   n.appendChild(a);o.a=a;
-  var p=document.createElement("div");p.className="p";p.hidden=true;m.appendChild(p);o.p=p;
+  var p=document.createElement("div");p.className=k==="soccer"?"p sc":"p";p.hidden=true;m.appendChild(p);o.p=p;
   s[4].forEach(function(l,i){
     var c=document.createElement("section");
     c.innerHTML=(l[1]?'<h2></h2>':'')+'<div class="g"></div><div class="e">No live or completed games today.</div>';
