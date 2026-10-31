@@ -96,7 +96,7 @@ function meta(k,cs,ev,L){
   var a=grp(k,cs[0]),b=grp(k,cs[1]),g=a&&b?(a===b?a:a+" vs "+b):a||b||(k==="soccer"?"":""),
   nt=(ev.competitions[0].notes||[])[0],h=nt&&nt.headline||"";
   return [g,h].filter(Boolean).join(" · ")}
-function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'</span><i>'+esc(c.score)+'</i></div>'}
+function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'<span class="w" aria-label="Winner"></span></span><i>'+esc(c.score)+'</i></div>'}
 function render(o,L,events){
   var now=Date.now(),td=new Date().toDateString(),seen={},els=L.els,home=o.k==="soccer",
   st=function(x){return x.status&&x.status.type&&x.status.type.state},
@@ -110,7 +110,7 @@ function render(o,L,events){
     var isl=st(ev)==="in",bb=x.firstChild.firstChild,bt=isl?"● LIVE":"Final";
     if(bb.textContent!==bt){bb.textContent=bt;bb.className=isl?"lv":""}
     var d=x.querySelector(".d"),dv=isl?ev.status.type.shortDetail||"":"";if(d.textContent!==dv)d.textContent=dv;
-    var sc=x.querySelectorAll(".t i");cs.forEach(function(c,i){var v=String(c.score);if(sc[i].textContent!==v)sc[i].textContent=v});
+    var sc=x.querySelectorAll(".t i"),ws=x.querySelectorAll(".w");cs.forEach(function(c,i){var wv=!isl&&c.winner?" 🎉":"";if(ws[i].textContent!==wv)ws[i].textContent=wv;var v=String(c.score);if(sc[i].textContent!==v)sc[i].textContent=v});
   });
   Object.keys(els).forEach(function(id){if(!seen[id]){els[id].remove();delete els[id]}});
   all.forEach(function(ev,i){var x=els[ev.id];if(L.g.children[i]!==x)L.g.insertBefore(x,L.g.children[i]||null)});
