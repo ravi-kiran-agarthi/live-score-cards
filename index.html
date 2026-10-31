@@ -38,7 +38,7 @@ main{padding:0 16px}
 .p[hidden]{display:none}
 section{padding:16px 0}
 hr{border:0;border-top:1px solid var(--bd);margin:0}
-@media(min-width:700px){.p.sc{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));column-gap:16px;align-items:start}.p.sc hr{display:none}.p.sc section{border-top:0;padding-top:16px}.p.sc .g{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:700px){.p.sc:not([hidden]){display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));column-gap:16px;align-items:start}.p.sc hr{display:none}.p.sc section{border-top:0;padding-top:16px}.p.sc .g{grid-template-columns:minmax(0,1fr)}}
 .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));column-gap:12px}
 .c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px;display:grid;grid-row:span 4;grid-template-rows:auto auto auto auto}
 @supports(grid-template-rows:subgrid){.c{grid-template-rows:subgrid;row-gap:0}}
