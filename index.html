@@ -22,7 +22,7 @@ h2{font-size:1rem;margin:0 0 10px}
 select{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;font:inherit;min-height:40px}
 @supports(appearance:base-select){
 select,::picker(select){appearance:base-select}
-.nx{margin-top:12px}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
+.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
 select{display:inline-flex;align-items:center;justify-content:space-between;inline-size:9rem;gap:.5rem;padding:.4rem .8rem;font-weight:700}
 select::picker-icon{color:var(--mut);transition:rotate .2s}
 select:open::picker-icon{rotate:180deg}
@@ -70,7 +70,7 @@ footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.
 <header><h1>Live Score Cards</h1>
 <label>Theme <select id="th"><button type="button"><selectedcontent></selectedcontent></button><option value="system"><span aria-hidden="true">💻</span> System</option><option value="light"><span aria-hidden="true">☀️</span> Light</option><option value="dark"><span aria-hidden="true">🌙</span> Dark</option></select></label></header>
 <nav id="n" aria-label="Sports"></nav>
-<div class="vw" id="vw" hidden><a id="va">Live</a><a id="vb">Bracket</a><a id="vt">Teams</a><a id="vs" hidden>Standings</a></div>
+<div class="vw" id="vw" hidden><a id="va">Live</a><a id="vu">Upcoming</a><a id="vb">Bracket</a><a id="vt">Teams</a><a id="vs" hidden>Standings</a></div>
 <main id="m"></main>
 <div id="bk" hidden></div>
 <div id="u" role="status"></div>
@@ -122,7 +122,7 @@ function nxt(o,L,ev){
   pre=pre.filter(function(x){return new Date(x.date).toDateString()===ds});
   var k=pre.map(function(x){return x.id}).join();
   if(k!==L.nk){L.nk=k;
-    L.nx.firstChild.textContent="No live games. Next: "+d0.toLocaleDateString([],DF)+" ("+pre.length+(pre.length>1?" games)":" game)");
+    L.nx.firstChild.textContent="Next games: "+d0.toLocaleDateString([],DF)+" ("+pre.length+(pre.length>1?" games)":" game)");
     var g=L.nx.lastChild;g.textContent="";
     pre.slice(0,12).forEach(function(ev){
       var cs=ev.competitions[0].competitors.slice().sort(function(a,b){return(a.homeAway==="home")===home?-1:1}),x=document.createElement("article");
@@ -135,7 +135,6 @@ function probe(o,L,i){
   var d=new Date();d.setDate(d.getDate()+i);
   var q=d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2);
   fetch(B+L.path+"/scoreboard?dates="+q,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
-    if(L.n)return;
     if(nxt(o,L,j.events||[]))return;
     if(i<10)probe(o,L,i+1);else{L.nx.hidden=false;L.nx.firstChild.textContent="No upcoming games found soon.";L.nx.lastChild.textContent="";L.nk=""}
   }).catch(function(){L.pt=0})}
@@ -157,10 +156,9 @@ function render(o,L,events){
   Object.keys(els).forEach(function(id){if(!seen[id]){els[id].remove();delete els[id]}});
   all.forEach(function(ev,i){var x=els[ev.id];if(L.g.children[i]!==x)L.g.insertBefore(x,L.g.children[i]||null)});
   L.e.hidden=all.length>0;L.n=all.length;L.live=live.length;
-  if(all.length)L.nx.hidden=true;
-  else if(!nxt(o,L,events)&&Date.now()-L.pt>6e5){L.pt=Date.now();probe(o,L,1)}
+  if(o.up&&!nxt(o,L,events)&&Date.now()-L.pt>6e5){L.pt=Date.now();probe(o,L,1)}
 }
-function ftv(){ft.hidden=!!act&&bk.hidden&&!act.L.some(function(L){return L.n})}
+function ftv(){ft.hidden=!!act&&bk.hidden&&!act.up&&!act.L.some(function(L){return L.n})}
 function mark(o){
   o.live=o.L.reduce(function(t,L){return t+L.live},0);
   o.a.classList.toggle("live",o.live>0);
@@ -201,7 +199,7 @@ wnba:"East/West: conferences. #n: playoff seed. Series text like 'ATL wins serie
 mlb:"AL/NL: American/National League. NLWC/ALWC: Wild Card Series. NLDS/ALDS: Division Series. NLCS/ALCS: Championship Series. #n: playoff seed. Top/Bot: top/bottom of the inning.",
 soccer:"FT: full time. HT: half time. ET: extra time. Pen: penalties."},fp=document.getElementById("fp");
 function route(){
-  var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",m=k==="soccer"?(h[1]==="teams"?"teams":h[1]==="table"?"table":h[1]==="bracket"?"ucl":""):(h[1]==="bracket"?"show":h[1]==="teams"?"teams":""),b=!!m;
+  var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",m=k==="soccer"?(h[1]==="teams"?"teams":h[1]==="upcoming"?"up":h[1]==="table"?"table":h[1]==="bracket"?"ucl":""):(h[1]==="bracket"?"show":h[1]==="teams"?"teams":h[1]==="upcoming"?"up":""),b=!!m&&m!=="up";
   if(act!==S[k]){
     if(act){act.p.hidden=true;act.a.removeAttribute("aria-current")}
     act=S[k];act.a.setAttribute("aria-current","page");
@@ -211,9 +209,9 @@ function route(){
     if(act.last)act.last=0;
   }
   vw.hidden=false;vb.textContent=k==="soccer"?"Champions League":"Bracket";vs.hidden=k!=="soccer";
-  va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";vs.href="#"+k+"/table";
-  [[va,""],[vb,k==="soccer"?"ucl":"show"],[vt,"teams"],[vs,"table"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
-  act.p.hidden=b;bk.hidden=!b;ftv();
+  va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";vu.href="#"+k+"/upcoming";vs.href="#"+k+"/table";
+  [[va,""],[vb,k==="soccer"?"ucl":"show"],[vu,"up"],[vt,"teams"],[vs,"table"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
+  act.p.hidden=b;bk.hidden=!b;var up=m==="up";act.p.classList.toggle("up",up);if(act.up!==up){act.up=up;act.last=0;act.L.forEach(function(L){L.pt=0})}ftv();
   if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
 }
