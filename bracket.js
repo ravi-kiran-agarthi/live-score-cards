@@ -15,7 +15,7 @@ P1={nfl:[[0,-1],[-1,-1]],mlb:[[0,-1],[1,-1]]},
 cur,timer,tok=0,sig="",el=L.el,
 old=new Date(Date.now()-2*864e5).toISOString().slice(0,10).replace(/-/g,"");
 var st=document.createElement("style");
-st.textContent=".bk{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 0 12px}.bcol{flex:1 0 220px;min-width:220px;display:flex;flex-direction:column;scroll-snap-align:start}.bcol h3{font-size:.75rem;color:var(--mut);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em}.bcol ol{list-style:none;margin:0;padding:0;flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:12px}.bc{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}.bc.lv{border-color:var(--live)}.bc.tbd{opacity:.5}.bc .t i{font-size:1.1rem}.bc .t span{min-width:0;overflow-wrap:anywhere}.bc small{color:var(--mut);font-weight:400;margin-left:6px}.bm{color:var(--mut);font-size:.72rem;margin-bottom:4px;min-height:1.2em}.lv .bm{color:var(--live);font-weight:600}.bn{color:var(--mut);font-size:.85rem;margin:12px 0}.lf .bc:after,.rt .bc:after{content:'';position:absolute;top:50%;width:10px;border-top:1px solid var(--bd)}.lf .bc:after{right:-11px}.rt .bc:after{left:-11px}";
+st.textContent=".bk{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 0 12px}.bcol{flex:1 0 220px;min-width:220px;display:flex;flex-direction:column;scroll-snap-align:start}.bcol h3{font-size:.75rem;color:var(--mut);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em}.bcol ol{list-style:none;margin:0;padding:0;flex:1;display:grid;align-content:space-around}.bc{display:grid;grid-row:span 4;grid-template-rows:auto auto auto auto;margin-bottom:12px;position:relative;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}.bc.lv{border-color:var(--live)}.bc.tbd{opacity:.5}.bc .t i{font-size:1.1rem}@supports(grid-template-rows:subgrid){.bc{grid-template-rows:subgrid;row-gap:0}}.bf{color:var(--mut);font-size:.75rem;line-height:1.3;min-height:1.3em;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);overflow-wrap:anywhere}.bc small{color:var(--mut);font-weight:400;margin-left:6px}.bm{color:var(--mut);font-size:.72rem;margin-bottom:4px;min-height:1.2em}.lv .bm{color:var(--live);font-weight:600}.bn{color:var(--mut);font-size:.85rem;margin:12px 0}.lf .bc:after,.rt .bc:after{content:'';position:absolute;top:50%;width:10px;border-top:1px solid var(--bd)}.lf .bc:after{right:-11px}.rt .bc:after{left:-11px}";
 document.head.appendChild(st);
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function J(u){return fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})}
@@ -120,11 +120,11 @@ function proj(sp){
   });
 }
 function row(t){
-  return'<div class="t"><span>'+(t.l?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.l)+'">':"")+esc(t.f||t.a)+(t.k?" 🎉":"")+(t.n?"<small>#"+t.n+"</small>":"")+"</span><i>"+esc(t.v)+"</i></div>";
+  return'<div class="t"><span>'+(t.l?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.l)+'">':"")+esc(t.a)+(t.k?" 🎉":"")+(t.n?"<small>#"+t.n+"</small>":"")+"</span><i>"+esc(t.v)+"</i></div>";
 }
 function card(c){
-  if(c.tbd)return'<li class="bc tbd"><div class="bm">TBD</div><div class="t"><span>TBD</span></div><div class="t"><span>TBD</span></div></li>';
-  return'<li class="bc'+(c.live?" lv":"")+'"><div class="bm">'+esc(c.m)+"</div>"+row(c.t[0])+row(c.t[1])+"</li>";
+  if(c.tbd)return'<li class="bc tbd"><div class="bm">TBD</div><div class="t"><span>TBD</span></div><div class="t"><span>TBD</span></div><div class="bf"></div></li>';
+  return'<li class="bc'+(c.live?" lv":"")+'"><div class="bm">'+esc(c.m)+"</div>"+row(c.t[0])+row(c.t[1])+'<div class="bf">'+esc(c.t.map(function(x){return x.f}).filter(Boolean).join(" vs "))+"</div></li>";
 }
 function col(h,cs,cl){return'<section class="bcol '+cl+'"><h3>'+esc(h)+"</h3><ol>"+cs.map(card).join("")+"</ol></section>"}
 function paint(sp,cols,live){
