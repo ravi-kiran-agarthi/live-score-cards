@@ -98,9 +98,9 @@ function meta(k,cs,ev,L){
   return [g,h].filter(Boolean).join(" · ")}
 function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'</span><i>'+esc(c.score)+'</i></div>'}
 function render(o,L,events){
-  var seen={},els=L.els,home=o.k==="soccer",
+  var now=Date.now(),td=new Date().toDateString(),seen={},els=L.els,home=o.k==="soccer",
   st=function(x){return x.status&&x.status.type&&x.status.type.state},
-  all=events.filter(function(x){var z=st(x);return z==="in"||z==="post"}).sort(function(a,b){return(st(a)==="in"?0:1)-(st(b)==="in"?0:1)}),
+  all=events.filter(function(x){var z=st(x);return z==="in"||z==="post"&&(new Date(x.date).toDateString()===td||now-new Date(x.date)<216e5)}).sort(function(a,b){return(st(a)==="in"?0:1)-(st(b)==="in"?0:1)}),
   live=all.filter(function(x){return st(x)==="in"});
   all.forEach(function(ev){
     var cs=ev.competitions[0].competitors.slice().sort(function(a,b){return(a.homeAway==="home")===home?-1:1}),x=els[ev.id];
