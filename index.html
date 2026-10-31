@@ -56,7 +56,7 @@ footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.
 <header><h1>Live Score Cards</h1>
 <select id="th" aria-label="Theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></header>
 <nav id="n" aria-label="Sports"></nav>
-<div class="vw" id="vw" hidden><a id="va">Live</a><a id="vb">Bracket</a></div>
+<div class="vw" id="vw" hidden><a id="va">Live</a><a id="vb">Bracket</a><a id="vt">Teams</a></div>
 <main id="m"></main>
 <div id="bk" hidden></div>
 <div id="u" role="status"></div>
@@ -72,7 +72,7 @@ SP=[
 ["soccer","Soccer","⚽",15000,[["soccer/eng.1","Premier League"],["soccer/esp.1","La Liga"],["soccer/ger.1","Bundesliga"],["soccer/ita.1","Serie A"],["soccer/fra.1","Ligue 1"]]]
 ],
 n=document.getElementById("n"),m=document.getElementById("m"),u=document.getElementById("u"),th=document.getElementById("th"),
-G={"nfl": "AFC East:BUF MIA NE NYJ|AFC North:BAL CIN CLE PIT|AFC South:HOU IND JAX TEN|AFC West:DEN KC LAC LV|NFC East:DAL NYG PHI WSH|NFC North:CHI DET GB MIN|NFC South:ATL CAR NO TB|NFC West:ARI LAR SEA SF", "nba": "East · Atlantic:BKN BOS NY PHI TOR|East · Central:CHI CLE DET IND MIL|East · Southeast:ATL CHA MIA ORL WSH|West · Northwest:DEN MIN OKC POR UTAH|West · Pacific:GS LAC LAL PHX SAC|West · Southwest:DAL HOU MEM NO SA", "wnba": "East:ATL CHI CON IND NY TOR WSH|West:DAL GS LA LV MIN PHX POR SEA", "mlb": "AL East:BAL BOS NYY TB TOR|AL Central:CHW CLE DET KC MIN|AL West:ATH HOU LAA SEA TEX|NL East:ATL MIA NYM PHI WSH|NL Central:CHC CIN MIL PIT STL|NL West:ARI COL LAD SD SF"},GM={},S={},act,timer,vw=document.getElementById('vw'),va=document.getElementById('va'),vb=document.getElementById('vb'),bk=document.getElementById('bk'),bs,bsp;
+G={"nfl": "AFC East:BUF MIA NE NYJ|AFC North:BAL CIN CLE PIT|AFC South:HOU IND JAX TEN|AFC West:DEN KC LAC LV|NFC East:DAL NYG PHI WSH|NFC North:CHI DET GB MIN|NFC South:ATL CAR NO TB|NFC West:ARI LAR SEA SF", "nba": "East · Atlantic:BKN BOS NY PHI TOR|East · Central:CHI CLE DET IND MIL|East · Southeast:ATL CHA MIA ORL WSH|West · Northwest:DEN MIN OKC POR UTAH|West · Pacific:GS LAC LAL PHX SAC|West · Southwest:DAL HOU MEM NO SA", "wnba": "East:ATL CHI CON IND NY TOR WSH|West:DAL GS LA LV MIN PHX POR SEA", "mlb": "AL East:BAL BOS NYY TB TOR|AL Central:CHW CLE DET KC MIN|AL West:ATH HOU LAA SEA TEX|NL East:ATL MIA NYM PHI WSH|NL Central:CHC CIN MIL PIT STL|NL West:ARI COL LAD SD SF"},GM={},S={},act,timer,vw=document.getElementById('vw'),va=document.getElementById('va'),vb=document.getElementById('vb'),bk=document.getElementById('bk'),bs,bsp,bm;
 th.value=localStorage.getItem("theme")||"system";
 th.onchange=function(){var v=th.value,d=document.documentElement;if(v==="system"){localStorage.removeItem("theme");delete d.dataset.theme}else{localStorage.setItem("theme",v);d.dataset.theme=v}};
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -142,12 +142,12 @@ function tick(){
   }
   timer=setTimeout(tick,2000);
 }
-function bracket(k){
-  bsp=k;
+function bracket(k,m){
+  bsp=k;bm=m;
   window.LSC={side:function(sp,a){return grp(sp,{team:{abbreviation:a}})},el:bk};
-  if(window.BK)return BK.show(k);
+  if(window.BK)return BK[m](k);
   bk.textContent="Loading bracket…";
-  if(!bs){bs=document.createElement("script");bs.src="bracket.js";bs.onload=function(){if(bsp)BK.show(bsp)};bs.onerror=function(){bs=0;bk.textContent="Could not load bracket."};document.head.appendChild(bs)}
+  if(!bs){bs=document.createElement("script");bs.src="bracket.js";bs.onload=function(){if(bsp)BK[bm](bsp)};bs.onerror=function(){bs=0;bk.textContent="Could not load bracket."};document.head.appendChild(bs)}
 }
 var FN={
 nfl:"AFC/NFC: American/National Football Conference. Wild Card: round 1; seeds 2–7 play, #1 seed gets a bye. #n: playoff seed. HT: halftime. Q1–Q4: quarters. OT: overtime.",
@@ -156,7 +156,7 @@ wnba:"East/West: conferences. #n: playoff seed. Series text like 'ATL wins serie
 mlb:"AL/NL: American/National League. NLWC/ALWC: Wild Card Series. NLDS/ALDS: Division Series. NLCS/ALCS: Championship Series. #n: playoff seed. Top/Bot: top/bottom of the inning.",
 soccer:"FT: full time. HT: half time. ET: extra time. Pen: penalties."},fp=document.getElementById("fp");
 function route(){
-  var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",b=h[1]==="bracket"&&k!=="soccer";
+  var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",m=k!=="soccer"&&(h[1]==="bracket"?"show":h[1]==="teams"?"teams":""),b=!!m;
   if(act!==S[k]){
     if(act){act.p.hidden=true;act.a.removeAttribute("aria-current")}
     act=S[k];act.a.setAttribute("aria-current","page");
@@ -166,10 +166,10 @@ function route(){
     if(act.last)act.last=0;
   }
   vw.hidden=k==="soccer";
-  va.href="#"+k;vb.href="#"+k+"/bracket";
-  (b?vb:va).setAttribute("aria-current","page");(b?va:vb).removeAttribute("aria-current");
+  va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";
+  [[va,""],[vb,"show"],[vt,"teams"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
   act.p.hidden=b;bk.hidden=!b;
-  if(b)bracket(k);else{bsp=0;if(window.BK)BK.hide()}
+  if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
 }
 addEventListener("hashchange",route);
