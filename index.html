@@ -154,7 +154,7 @@ nfl:"AFC/NFC: American/National Football Conference. Wild Card: round 1; seeds 2
 nba:"East/West: conferences. Conf. Finals: conference finals. NBA Cup: in-season tournament. #n: playoff seed. Q1–Q4: quarters. HT: halftime. OT: overtime.",
 wnba:"East/West: conferences. #n: playoff seed. 'ATL wins series 3-0': first team to win the series. Q1–Q4: quarters. HT: halftime. OT: overtime.",
 mlb:"AL/NL: American/National League. NLWC/ALWC: Wild Card Series. NLDS/ALDS: Division Series. NLCS/ALCS: Championship Series. #n: playoff seed. Top/Bot: top/bottom of the inning.",
-soccer:"FT: full time. HT: half time. ET: extra time. Pen: penalties. 'vs': home team listed last."},fp=document.getElementById("fp");
+soccer:"FT: full time. HT: half time. ET: extra time. Pen: penalties."},fp=document.getElementById("fp");
 function route(){
   var h=location.hash.slice(1).split("/"),k=S[h[0]]?h[0]:"nfl",b=h[1]==="bracket"&&k!=="soccer";
   if(act!==S[k]){
