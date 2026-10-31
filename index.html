@@ -124,13 +124,16 @@ function mark(o){
   o.a.classList.toggle("live",o.live>0);
   o.a.lastChild.textContent=o.live?" (live games now)":"";
 }
+function ssn(o,j){
+  var e=((j.leagues||[])[0]||{}).season||{},y=(String(e.displayName||e.year||"").match(/^\d{4}(-\d\d)?/)||[""])[0],t=o.k==="soccer"?"season":(e.type&&e.type.name)||"season",w=j.week&&j.week.number&&o.k==="nfl"?" · Week "+j.week.number:"";
+  o.sn=y?y+" "+t+w:""}
 function fetchSport(o){
   if(o.busy)return;o.busy=1;
   var ac=o.ac=new AbortController(),ok=0;
-  Promise.all(o.L.map(function(L){return fetch(B+L.path+"/scoreboard",{signal:ac.signal,cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){ok++;render(o,L,j.events||[])}).catch(function(x){if(x&&x.name==="AbortError")throw x})}))
+  Promise.all(o.L.map(function(L){return fetch(B+L.path+"/scoreboard",{signal:ac.signal,cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){ok++;if(L===o.L[0])ssn(o,j);render(o,L,j.events||[])}).catch(function(x){if(x&&x.name==="AbortError")throw x})}))
   .then(function(){
     o.fails=ok?0:o.fails+1;o.last=Date.now();mark(o);
-    if(ok)o.upd="Updated "+new Date().toLocaleTimeString();
+    if(ok)o.upd=(o.sn?o.sn+" · ":"")+"Updated "+new Date().toLocaleTimeString();
     if(o===act)u.textContent=ok?o.upd:"Connection issue, retrying…";
   }).catch(function(){}).then(function(){o.busy=0});
 }
