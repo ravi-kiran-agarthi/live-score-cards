@@ -1,0 +1,157 @@
+(function(){
+"use strict";
+var L=window.LSC,SB="https://site.api.espn.com/apis/site/v2/sports/",
+P={nfl:"football/nfl",nba:"basketball/nba",wnba:"basketball/wnba",mlb:"baseball/mlb"},
+RD={
+nfl:[["Wild Card",/wild/i],["Divisional",/divis/i],["Conference",/conf/i],["Super Bowl",/super/i]],
+nba:[["First Round",/1st|first/i],["Semifinals",/semi/i],["Conf. Finals",/\bfinals\b/i],["NBA Finals",/nba finals/i]],
+mlb:[["Wild Card",/wild/i],["Division Series",/division|[an]lds/i],["Championship Series",/champ|[an]lcs/i],["World Series",/world/i]],
+wnba:[["First Round",/1st|first/i],["Semifinals",/semi/i],["WNBA Finals",/\bfinals\b/i]]},
+SD={nfl:["AFC","NFC"],nba:["East","West"],mlb:["AL","NL"]},
+EX={nfl:[3,2,1,1],nba:[4,2,1,1],mlb:[2,2,1,1],wnba:[4,2,1]},
+TOP={nfl:7,mlb:6,nba:8,wnba:8},
+P0={nfl:[[1,6],[2,5],[3,4]],mlb:[[2,5],[3,4]],nba:[[0,7],[3,4],[2,5],[1,6]],wnba:[[0,7],[3,4],[2,5],[1,6]]},
+P1={nfl:[[0,-1],[-1,-1]],mlb:[[0,-1],[1,-1]]},
+cur,timer,tok=0,sig="",el=L.el,
+old=new Date(Date.now()-2*864e5).toISOString().slice(0,10).replace(/-/g,"");
+var st=document.createElement("style");
+st.textContent=".bk{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 0 12px}.bcol{flex:1 0 220px;min-width:220px;display:flex;flex-direction:column;scroll-snap-align:start}.bcol h3{font-size:.75rem;color:var(--mut);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em}.bcol ol{list-style:none;margin:0;padding:0;flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:12px}.bc{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}.bc.lv{border-color:var(--live)}.bc.tbd{opacity:.5}.bc .t i{font-size:1.1rem}.bc small{color:var(--mut);font-weight:400;margin-left:6px}.bm{color:var(--mut);font-size:.72rem;margin-bottom:4px;min-height:1.2em}.lv .bm{color:var(--live);font-weight:600}.bn{color:var(--mut);font-size:.85rem;margin:12px 0}.lf .bc:after,.rt .bc:after{content:'';position:absolute;top:50%;width:10px;border-top:1px solid var(--bd)}.lf .bc:after{right:-11px}.rt .bc:after{left:-11px}";
+document.head.appendChild(st);
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function J(u){return fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})}
+function rd(sp,h){var a=RD[sp];for(var i=a.length;i--;)if(a[i][1].test(h||""))return i;return -1}
+function norm(sp,e){
+  var c=e.competitions[0],n=(c.notes||[])[0],sr=c.series,w={};
+  if(sr&&sr.competitors)sr.competitors.forEach(function(x){w[x.id]=x.wins});
+  return{id:e.id,d:e.date,st:e.status.type.state,det:e.status.type.shortDetail||"",post:!!e.season&&e.season.slug==="post-season",
+    r:rd(sp,n&&n.headline),sm:sr&&sr.summary||"",
+    t:c.competitors.slice().sort(function(a,b){return a.homeAway===b.homeAway?0:a.homeAway==="away"?-1:1}).map(function(x){var t=x.team||{};return{a:t.abbreviation||"TBD",l:t.logo||"",s:x.score,w:w[x.id]}})}
+}
+function day(sp,ds){
+  var k="bk1:"+sp+":"+ds,c;
+  try{c=localStorage.getItem(k)}catch(e){}
+  if(c)return Promise.resolve(JSON.parse(c));
+  return J(SB+P[sp]+"/scoreboard?dates="+ds).then(function(j){
+    var ev=(j.events||[]).map(function(e){return norm(sp,e)});
+    if(ds<old&&ev.length&&ev.every(function(e){return e.st==="post"}))try{localStorage.setItem(k,JSON.stringify(ev))}catch(e){}
+    return ev;
+  }).catch(function(){return[]});
+}
+function loadNfl(){
+  return Promise.all([1,2,3,5].map(function(w){return J(SB+P.nfl+"/scoreboard?seasontype=3&week="+w).then(function(j){return(j.events||[]).map(function(e){return norm("nfl",e)})}).catch(function(){return[]})})).then(function(a){return[].concat.apply([],a)});
+}
+function loadDays(sp,part){
+  return J(SB+P[sp]+"/scoreboard").then(function(j){
+    var cal=((j.leagues||[{}])[0].calendar||[]).map(function(x){return String(x).slice(0,10).replace(/-/g,"")}),
+    an=((j.day||{}).date||"").replace(/-/g,""),
+    out=(j.events||[]).map(function(e){return norm(sp,e)});
+    if(out.length&&!out.some(function(e){return e.post}))return out;
+    var past=cal.filter(function(d){return d<an}).reverse(),fut=cal.filter(function(d){return d>an}).slice(0,8);
+    function batch(ds){return Promise.all(ds.map(function(d){return day(sp,d)}))}
+    function back(i){
+      if(i>=past.length||i>=70)return;
+      return batch(past.slice(i,i+6)).then(function(r){
+        var stop=0;
+        r.forEach(function(ev){if(ev.length&&!ev.some(function(e){return e.post}))stop=1;else out=out.concat(ev.filter(function(e){return e.post}))});
+        part(out);
+        if(!stop)return back(i+6);
+      });
+    }
+    return batch(fut).then(function(r){
+      r.forEach(function(ev){out=out.concat(ev.filter(function(e){return e.post}))});
+      part(out);return back(0);
+    }).then(function(){return out});
+  });
+}
+function real(sp,evs){
+  var S={},arr=[],seen={};
+  evs.forEach(function(e){
+    if(seen[e.id]||e.r<0||!e.post)return;seen[e.id]=1;
+    if(e.t.some(function(x){return x.a==="TBD"}))return;
+    var k=sp==="nfl"?e.id:e.r+"|"+e.t.map(function(x){return x.a}).sort().join();
+    if(!S[k])arr.push(S[k]={r:e.r,ev:[]});
+    S[k].ev.push(e);
+  });
+  return arr.map(function(s){
+    s.ev.sort(function(a,b){return a.d<b.d?-1:1});
+    var lv=s.ev.filter(function(e){return e.st==="in"})[0],last=lv||s.ev[s.ev.length-1],ws=last.t[0].w!=null,m;
+    m=lv?"● LIVE · "+lv.det+(ws?" · "+lv.t[0].a+" "+lv.t[0].s+"–"+lv.t[1].a+" "+lv.t[1].s:""):(last.sm||last.det);
+    return{r:s.r,live:!!lv,m:m,o:s.ev[0].d,t:last.t.map(function(x){return{a:x.a,l:x.l,v:x.w!=null?x.w:(last.st==="pre"?"":x.s)}})};
+  });
+}
+function sideOf(sp,c){
+  var sd=SD[sp];
+  for(var i=0;i<c.t.length;i++){var x=sd.indexOf(String(L.side(sp,c.t[i].a)).split(/[ ·]/)[0]);if(x>=0)return x}
+  return -1;
+}
+function fill(sp,cols){
+  var rn=RD[sp].length;
+  for(var r=0;r<rn;r++)cols[r].forEach(function(a){while(a.length<EX[sp][r])a.push({tbd:1})});
+  return cols;
+}
+function place(sp,arr){
+  var rn=RD[sp].length,sd=SD[sp],cols=[];
+  for(var r=0;r<rn;r++)cols[r]=sd&&r<rn-1?[[],[]]:[[]];
+  arr.sort(function(a,b){return a.o<b.o?-1:1}).forEach(function(c){
+    var i=0;
+    if(sd&&c.r<rn-1){i=sideOf(sp,c);if(i<0)i=cols[c.r][0].length<=cols[c.r][1].length?0:1}
+    cols[c.r][i].push(c);
+  });
+  return fill(sp,cols);
+}
+function proj(sp){
+  return J("https://site.api.espn.com/apis/v2/sports/"+P[sp]+"/standings?level=2").then(function(j){
+    var cf=(j.children||[]).map(function(c){return((c.standings||{}).entries||[]).map(function(e){
+      var s={},t=e.team||{};(e.stats||[]).forEach(function(x){s[x.name]=x.value});
+      return{a:t.abbreviation,l:t.logos&&t.logos[0]&&t.logos[0].href||"",sd:s.playoffSeed||99,w:s.winPercent||0}
+    }).sort(function(a,b){return a.sd-b.sd||b.w-a.w})});
+    if(!SD[sp])cf=[[].concat.apply([],cf).sort(function(a,b){return b.w-a.w})];
+    var rn=RD[sp].length,cols=[],top=TOP[sp];
+    for(var r=0;r<rn;r++)cols[r]=SD[sp]&&r<rn-1?[[],[]]:[[]];
+    function mk(t,n){return t?{a:t.a,l:t.l,v:"",n:n+1}:{a:"TBD",v:""}}
+    cf.forEach(function(ts,i){
+      ts=ts.slice(0,top);
+      [P0[sp],P1[sp]||[]].forEach(function(pp,r){pp.forEach(function(p){
+        var x=p[0]<0?null:ts[p[0]],y=p[1]<0?null:ts[p[1]];
+        cols[r][i].push({r:r,m:"Projected",t:[mk(x,p[0]),mk(y,p[1])]});
+      })});
+    });
+    return fill(sp,cols);
+  });
+}
+function row(t){
+  return'<div class="t"><span>'+(t.l?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.l)+'">':"")+esc(t.a)+(t.n?"<small>#"+t.n+"</small>":"")+"</span><i>"+esc(t.v)+"</i></div>";
+}
+function card(c){
+  if(c.tbd)return'<li class="bc tbd"><div class="bm">TBD</div><div class="t"><span>TBD</span></div><div class="t"><span>TBD</span></div></li>';
+  return'<li class="bc'+(c.live?" lv":"")+'"><div class="bm">'+esc(c.m)+"</div>"+row(c.t[0])+row(c.t[1])+"</li>";
+}
+function col(h,cs,cl){return'<section class="bcol '+cl+'"><h3>'+esc(h)+"</h3><ol>"+cs.map(card).join("")+"</ol></section>"}
+function paint(sp,cols,live){
+  var rn=RD[sp].length,sd=SD[sp],h="",r;
+  if(sd){
+    for(r=0;r<rn-1;r++)h+=col(sd[0]+" "+RD[sp][r][0],cols[r][0],"lf");
+    h+=col(RD[sp][rn-1][0],cols[rn-1][0],"");
+    for(r=rn-2;r>=0;r--)h+=col(sd[1]+" "+RD[sp][r][0],cols[r][1],"rt");
+  }else for(r=0;r<rn;r++)h+=col(RD[sp][r][0],cols[r][0],r<rn-1?"lf":"");
+  h='<p class="bn">'+(live?"Live bracket · updates automatically":"Projected from current standings. Goes live when the playoffs start.")+'</p><div class="bk">'+h+"</div>";
+  if(h===sig)return;
+  sig=h;
+  var o=el.querySelector(".bk"),sl=o?o.scrollLeft:0;
+  el.innerHTML=h;
+  el.querySelector(".bk").scrollLeft=sl;
+}
+function run(){
+  var sp=cur,tk=++tok;
+  function ok(){return sp===cur&&tk===tok}
+  function tryReal(evs){var a=real(sp,evs);if(a.length&&ok())paint(sp,place(sp,a),1);return a.length}
+  (sp==="nfl"?loadNfl():loadDays(sp,function(e){if(ok())tryReal(e)})).then(function(evs){
+    if(!ok()||tryReal(evs))return;
+    return proj(sp).then(function(c){if(ok())paint(sp,c,0)});
+  }).catch(function(){if(ok()&&!sig)el.innerHTML='<p class="bn">Could not load bracket. Retrying…</p>'});
+}
+window.BK={
+  show:function(sp){cur=sp;sig="";el.innerHTML='<p class="bn">Loading bracket…</p>';clearInterval(timer);run();timer=setInterval(function(){if(!document.hidden)run()},30000)},
+  hide:function(){cur=null;clearInterval(timer)}
+};
+})();
