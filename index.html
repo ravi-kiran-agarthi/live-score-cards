@@ -117,8 +117,9 @@ function render(o,L,events){
   });
   Object.keys(els).forEach(function(id){if(!seen[id]){els[id].remove();delete els[id]}});
   all.forEach(function(ev,i){var x=els[ev.id];if(L.g.children[i]!==x)L.g.insertBefore(x,L.g.children[i]||null)});
-  L.e.hidden=all.length>0;L.live=live.length;
+  L.e.hidden=all.length>0;L.n=all.length;L.live=live.length;
 }
+function ftv(){ft.hidden=!!act&&bk.hidden&&!act.L.some(function(L){return L.n})}
 function mark(o){
   o.live=o.L.reduce(function(t,L){return t+L.live},0);
   o.a.classList.toggle("live",o.live>0);
@@ -134,7 +135,7 @@ function fetchSport(o){
   .then(function(){
     o.fails=ok?0:o.fails+1;o.last=Date.now();mark(o);
     if(ok)o.upd=(o.sn?o.sn+" · ":"")+"Updated "+new Date().toLocaleTimeString();
-    if(o===act)u.textContent=ok?o.upd:"Connection issue, retrying…";
+    if(o===act){u.textContent=ok?o.upd:"Connection issue, retrying…";ftv()}
   }).catch(function(){}).then(function(){o.busy=0});
 }
 function tick(){
@@ -171,7 +172,7 @@ function route(){
   vw.hidden=false;vb.textContent=k==="soccer"?"Champions League":"Bracket";vs.hidden=k!=="soccer";
   va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";vs.href="#"+k+"/table";
   [[va,""],[vb,k==="soccer"?"ucl":"show"],[vt,"teams"],[vs,"table"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
-  act.p.hidden=b;bk.hidden=!b;
+  act.p.hidden=b;bk.hidden=!b;ftv();
   if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
 }
