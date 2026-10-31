@@ -26,7 +26,7 @@ function teams(sp){
     (j.children||[]).forEach(function(c){
       var ds=c.children||[{name:"",standings:c.standings}];
       h+="<h3>"+esc(c.name)+"</h3><div class=tg>"+ds.map(function(d){
-        return"<div>"+(d.name?"<h4>"+esc(d.name)+"</h4>":"")+"<ul>"+((d.standings||{}).entries||[]).map(function(e){var t=e.team||{};return"<li>"+esc(t.displayName)+"</li>"}).sort().join("")+"</ul></div>"}).join("")+"</div>"});
+        return"<div>"+(d.name?"<h4>"+esc(d.name)+"</h4>":"")+"<ol>"+((d.standings||{}).entries||[]).map(function(e){var t=e.team||{};return"<li>"+esc(t.displayName)+"</li>"}).sort().join("")+"</ol></div>"}).join("")+"</div>"});
     TM[sp]=h?'<section class="tm"><h2>Conferences, divisions and teams</h2>'+h+"</section>":"";
     if(lastP){sig="";paint.apply(null,lastP)}
   }).catch(function(){TM[sp]=null});
