@@ -111,7 +111,7 @@ function grp(k,c){
 function meta(k,cs,ev,L){
   var a=grp(k,cs[0]),b=grp(k,cs[1]),g=a&&b?(a===b?a:a+" vs "+b):a||b||(k==="soccer"?"":""),
   nt=(ev.competitions[0].notes||[])[0],h=nt&&nt.headline||"";
-  var nm=cs.map(function(c){return(c.team||{}).displayName}).filter(Boolean).join(" vs ");
+  var nm=cs.slice().sort(function(a,b){return a.homeAway==="away"?-1:b.homeAway==="away"?1:0}).map(function(c){return(c.team||{}).displayName}).filter(Boolean).join(" at ");
   return [nm,[g,h].filter(Boolean).join(" · ")].filter(Boolean).join("\n")}
 function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'<span class="w" aria-label="Winner"></span></span><i>'+esc(c.score)+'</i></div>'}
 var DF={weekday:"short",month:"short",day:"numeric"},TF={hour:"numeric",minute:"2-digit"};
