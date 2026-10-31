@@ -33,14 +33,14 @@ main{padding:0 16px}
 section{padding:16px 0}
 hr{border:0;border-top:1px solid var(--bd);margin:0}
 .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));column-gap:12px}
-.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px;contain:content;display:grid;grid-row:span 4;grid-template-rows:auto auto auto auto}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px;display:grid;grid-row:span 4;grid-template-rows:auto auto auto auto}
 @supports(grid-template-rows:subgrid){.c{grid-template-rows:subgrid;row-gap:0}}
 .s{display:flex;justify-content:space-between;color:var(--mut);font-size:.8rem;margin-bottom:8px}
 .s b{color:var(--live)}
 .t{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-weight:600}
 .t img{width:24px;height:24px;margin-right:8px;vertical-align:middle}
 .t i{font-style:normal;font-size:1.3rem;font-variant-numeric:tabular-nums}
-.m{color:var(--mut);font-size:.75rem;min-height:1.1em;margin-bottom:4px}
+.m{color:var(--mut);font-size:.75rem;line-height:1.3;min-height:1.3em;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);overflow-wrap:anywhere}
 .e{color:var(--mut);font-size:.9rem}
 #u{padding:0 16px 16px;color:var(--mut);font-size:.75rem;min-height:1.5em}
 </style>
@@ -96,7 +96,7 @@ function render(o,L,events){
     var cs=ev.competitions[0].competitors.slice().sort(function(a,b){return(a.homeAway==="home")===home?-1:1}),x=els[ev.id];
     seen[ev.id]=1;
     if(!x){x=els[ev.id]=document.createElement("article");x.className="c";
-      x.innerHTML='<div class="s"><b>● LIVE</b><span class="d"></span></div><div class="m"></div>'+team(cs[0])+team(cs[1]);x.querySelector(".m").textContent=meta(o.k,cs,ev,L);L.g.appendChild(x)}
+      x.innerHTML='<div class="s"><b>● LIVE</b><span class="d"></span></div>'+team(cs[0])+team(cs[1])+'<div class="m"></div>';x.querySelector(".m").textContent=meta(o.k,cs,ev,L);L.g.appendChild(x)}
     var d=x.querySelector(".d"),dv=ev.status.type.shortDetail||"";if(d.textContent!==dv)d.textContent=dv;
     var sc=x.querySelectorAll(".t i");cs.forEach(function(c,i){var v=String(c.score);if(sc[i].textContent!==v)sc[i].textContent=v});
   });
