@@ -21,8 +21,18 @@ document.head.appendChild(st);
 var SL=[["eng.1","Premier League"],["esp.1","La Liga"],["ger.1","Bundesliga"],["fra.1","Ligue 1"],["uefa.champions","Champions League"]],SS,sm,sbusy;
 function stat(e,n){for(var i=0;i<e.stats.length;i++)if(e.stats[i].name===n)return e.stats[i].displayValue;return""}
 function lgo(t){var l=t.logos&&t.logos[0]&&t.logos[0].href;return l?'<img src="'+esc(l)+'" width=20 height=20 loading=lazy alt="">':""}
+function ucl(){
+  el.innerHTML='<p class="bn">Loading…</p>';
+  J(SB+"soccer/uefa.champions/scoreboard").then(function(j){
+    var en=(((j.leagues||[])[0]||{}).calendar||[])[0],es=en&&en.entries||[],k,i,f=function(d){return new Date(d).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"})};
+    for(i=0;i<es.length;i++)if(/knockout/i.test(es[i].label)){k=es[i];break}
+    if(!sm)return;
+    el.innerHTML='<p class="bn">'+(k?(new Date(k.startDate)>new Date()?"Knockout rounds start "+f(k.startDate)+". The bracket appears here then.":"Knockout rounds are underway. Today's games are in Live."):"Knockout dates not announced yet.")+"</p>";
+  }).catch(function(){if(sm)el.innerHTML='<p class="bn">Could not load dates. Try again shortly.</p>'});
+}
 function soc(mode){
   sm=mode;
+  if(mode==="ucl")return ucl();
   if(SS)return paintS();
   el.innerHTML='<p class="bn">Loading…</p>';
   if(sbusy)return;sbusy=1;
@@ -200,6 +210,7 @@ function run(){
   }).catch(function(){if(ok()&&!sig)el.innerHTML='<p class="bn">Could not load bracket. Retrying…</p>'});
 }
 window.BK={
+  ucl:function(){cur=null;tsp=null;clearInterval(timer);soc("ucl")},
   table:function(sp){cur=null;tsp=null;clearInterval(timer);soc("table")},
   teams:function(sp){if(sp==="soccer"){cur=null;clearInterval(timer);return soc("teams")}cur=null;tsp=sp;clearInterval(timer);if(TM[sp]===null)TM[sp]=undefined;showT(sp);teams(sp)},
   show:function(sp){cur=sp;sig="";el.innerHTML='<p class="bn">Loading bracket…</p>';clearInterval(timer);run();timer=setInterval(function(){if(!document.hidden)run()},30000)},
