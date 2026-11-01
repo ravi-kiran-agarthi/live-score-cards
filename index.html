@@ -64,7 +64,7 @@ hr{border:0;border-top:1px solid var(--bd);margin:0}
 .t i{font-style:normal;font-size:1.3rem;font-variant-numeric:tabular-nums}
 .m{color:var(--mut);font-size:.75rem;line-height:1.3;min-height:1.3em;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);overflow-wrap:anywhere;white-space:pre-line}
 .e{color:var(--mut);font-size:.9rem}.e[hidden]{display:none}
-footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.5em}footer p{margin:0 0 8px;line-height:1.5}#u{padding:0 16px 16px;color:var(--mut);font-size:.75rem;min-height:1.5em;visibility:hidden}#u.status{visibility:visible}
+#nv{margin:0;padding:0 16px 24px;text-align:center}#nv a{color:inherit;font-weight:600}#nv[hidden]{display:none}footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.5em}footer p{margin:0 0 8px;line-height:1.5}#u{padding:0 16px 16px;color:var(--mut);font-size:.75rem;min-height:1.5em;visibility:hidden}#u.status{visibility:visible}
 </style>
 </head>
 <body>
@@ -75,6 +75,7 @@ footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.
 <main id="m"></main>
 <div id="bk" hidden></div>
 <div id="u" role="status"></div>
+<p id="nv" hidden><a href="#" id="nva">🔄 New version available. Tap to update</a></p>
 <footer id="ft" hidden><p><b>Abbreviations:</b> <span id="fp"></span></p></footer>
 <script>
 (function(){
@@ -239,6 +240,12 @@ addEventListener("hashchange",route);
 document.addEventListener("visibilitychange",function(){if(!document.hidden){SP.forEach(function(s){S[s[0]].last=0});tick()}});
 addEventListener("online",function(){SP.forEach(function(s){S[s[0]].fails=0;S[s[0]].last=0});tick()});
 route();
+var BV="1793508435";
+function vchk(){if(document.hidden)return;fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():0}).then(function(j){if(j&&j.v&&j.v!==BV)document.getElementById("nv").hidden=false}).catch(function(){})}
+document.getElementById("nva").onclick=function(e){e.preventDefault();var go=function(){location.replace(location.pathname+"?v="+Date.now()+location.hash)};
+Promise.all([window.caches?caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n)}))}):0,navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}):0]).then(go,go)};
+setInterval(vchk,3e5);setTimeout(vchk,5e3);
+document.addEventListener("visibilitychange",vchk);
 SP.forEach(function(s){var o=S[s[0]];if(o!==act)o.last=Date.now()-SLOW+2500});
 })();
 </script>
