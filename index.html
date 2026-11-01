@@ -14,6 +14,7 @@
 @media(prefers-color-scheme:dark){:root{--bg:#0b0f14;--fg:#e5e7eb;--card:#151b23;--mut:#9ca3af;--bd:#263040}}
 :root[data-theme=light]{--bg:#f4f5f7;--fg:#111827;--card:#fff;--mut:#6b7280;--bd:#e5e7eb}
 :root[data-theme=dark]{--bg:#0b0f14;--fg:#e5e7eb;--card:#151b23;--mut:#9ca3af;--bd:#263040}
+.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx h3{margin:12px 0 8px;font-size:1rem}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--bd)}
@@ -22,7 +23,6 @@ h2{font-size:1rem;margin:0 0 10px}
 select{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;font:inherit;min-height:40px}
 @supports(appearance:base-select){
 select,::picker(select){appearance:base-select}
-.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx h3{margin:12px 0 8px;font-size:1rem}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
 select{display:inline-flex;align-items:center;justify-content:space-between;inline-size:9rem;gap:.5rem;padding:.4rem .8rem;font-weight:700}
 select::picker-icon{color:var(--mut);transition:rotate .2s}
 select:open::picker-icon{rotate:180deg}
@@ -64,7 +64,7 @@ hr{border:0;border-top:1px solid var(--bd);margin:0}
 .t i{font-style:normal;font-size:1.3rem;font-variant-numeric:tabular-nums}
 .m{color:var(--mut);font-size:.75rem;line-height:1.3;min-height:1.3em;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);overflow-wrap:anywhere;white-space:pre-line}
 .e{color:var(--mut);font-size:.9rem}.e[hidden]{display:none}
-footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.5em}footer p{margin:0 0 8px;line-height:1.5}#u{padding:0 16px 16px;color:var(--mut);font-size:.75rem;min-height:1.5em}
+footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.5em}footer p{margin:0 0 8px;line-height:1.5}#u{padding:0 16px 16px;color:var(--mut);font-size:.75rem;min-height:1.5em;visibility:hidden}#u.status{visibility:visible}
 </style>
 </head>
 <body>
@@ -190,7 +190,7 @@ function fetchSport(o){
   .then(function(){
     o.fails=ok?0:o.fails+1;o.last=Date.now();mark(o);
     if(ok)o.upd=(o.sn?o.sn+" · ":"")+"Updated "+new Date().toLocaleTimeString();
-    if(o===act){u.textContent=ok?o.upd:"Connection issue, retrying…";ftv()}
+    if(o===act){if(!o.up){if(ok){u.textContent="";u.classList.remove("status")}else{u.textContent="Connection issue, retrying…";u.classList.add("status")}}ftv()}
   }).catch(function(){}).then(function(){o.busy=0});
 }
 function tick(){
@@ -206,7 +206,7 @@ function bracket(k,m){
   window.LSC={side:function(sp,a){return grp(sp,{team:{abbreviation:a}})},el:bk};
   if(window.BK)return BK[m](k);
   bk.textContent="Loading bracket…";
-  if(!bs){bs=document.createElement("script");bs.src="bracket.js";bs.onload=function(){if(bsp)BK[bm](bsp)};bs.onerror=function(){bs=0;bk.textContent="Could not load bracket."};document.head.appendChild(bs)}
+  if(!bs){bs=document.createElement("script");bs.src="bracket.js?v=2";bs.onload=function(){if(bsp)BK[bm](bsp)};bs.onerror=function(){bs=0;bk.textContent="Could not load bracket."};document.head.appendChild(bs)}
 }
 var FN={
 nfl:"AFC/NFC: American/National Football Conference. Wild Card: round 1; seeds 2–7 play, #1 seed gets a bye. #n: playoff seed. HT: halftime. Q1–Q4: quarters. OT: overtime.",
@@ -221,13 +221,13 @@ function route(){
     act=S[k];act.a.setAttribute("aria-current","page");
     fp.textContent=FN[k];
     document.title=act.name+" Live Score Cards";
-    u.textContent=act.upd;
+    u.textContent="";u.classList.remove("status");
     if(act.last)act.last=0;
   }
   vw.hidden=false;vb.textContent=k==="soccer"?"Champions League":"Bracket";vs.hidden=k!=="soccer";
   va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";vu.href="#"+k+"/upcoming";vs.href="#"+k+"/table";
   [[va,""],[vb,k==="soccer"?"ucl":"show"],[vu,"up"],[vt,"teams"],[vs,"table"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
-  act.p.hidden=b;bk.hidden=!b;var up=m==="up";u.hidden=up;act.p.classList.toggle("up",up);if(act.up!==up){act.up=up;act.last=0;act.L.forEach(function(L){L.pt=0})}ftv();
+  act.p.hidden=b;bk.hidden=!b;var up=m==="up";if(up){u.textContent="";u.classList.remove("status")}act.p.classList.toggle("up",up);if(act.up!==up){act.up=up;act.last=0;act.L.forEach(function(L){L.pt=0})}ftv();
   if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
 }
