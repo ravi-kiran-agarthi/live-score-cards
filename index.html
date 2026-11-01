@@ -123,7 +123,7 @@ function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img l
 var DF={weekday:"short",month:"short",day:"numeric"},TF={hour:"numeric",minute:"2-digit"};
 function nxt(o,L,ev){
   var pre=ev.filter(function(x){return x.status&&x.status.type&&x.status.type.state==="pre"}).sort(function(a,b){return new Date(a.date)-new Date(b.date)});
-  if(!pre.length)return 0;
+  if(!pre.length){L.nx.hidden=true;L.nk="";return 0}
   var d0=new Date(pre[0].date),ds=d0.toDateString(),home=o.k==="soccer";
   pre=pre.filter(function(x){return new Date(x.date).toDateString()===ds});
   var k=pre.map(function(x){return x.id}).join();
