@@ -223,7 +223,7 @@ function bracket(k,m){
   window.LSC={side:function(sp,a){return grp(sp,{team:{abbreviation:a}})},el:bk};
   if(window.BK)return BK[m](k);
   bk.textContent="Loading bracket…";
-  if(!bs){bs=document.createElement("script");bs.src="bracket.js?v=2";bs.onload=function(){if(bsp)BK[bm](bsp)};bs.onerror=function(){bs=0;bk.textContent="Could not load bracket."};document.head.appendChild(bs)}
+  if(!bs){bs=document.createElement("script");bs.src="bracket.js?v=__BUILD__";bs.onload=function(){if(bsp)BK[bm](bsp)};bs.onerror=function(){bs=0;bk.textContent="Could not load bracket."};document.head.appendChild(bs)}
 }
 var FN={
 nfl:"AFC/NFC: American/National Football Conference. Wild Card: round 1; seeds 2–7 play, #1 seed gets a bye. #n: playoff seed. HT: halftime. Q1–Q4: quarters. OT: overtime.",
@@ -252,8 +252,8 @@ addEventListener("hashchange",function(){auto=0;route()});
 document.addEventListener("visibilitychange",function(){if(!document.hidden){SP.forEach(function(s){S[s[0]].last=0});tick()}});
 addEventListener("online",function(){SP.forEach(function(s){S[s[0]].fails=0;S[s[0]].last=0});tick()});
 var auto=!location.hash;route();
-var BV="1793558591";
-function vchk(){if(document.hidden)return;fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():0}).then(function(j){if(j&&j.v&&j.v!==BV)document.getElementById("nv").hidden=false}).catch(function(){})}
+var BV="__BUILD__";
+function vchk(){if(document.hidden||BV.indexOf("__")===0)return;fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():0}).then(function(j){if(j&&j.v&&j.v!==BV)document.getElementById("nv").hidden=false}).catch(function(){})}
 document.getElementById("nva").onclick=function(e){e.preventDefault();var go=function(){location.replace(location.pathname+"?v="+Date.now()+location.hash)};
 Promise.all([window.caches?caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n)}))}):0,navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}):0]).then(go,go)};
 setInterval(vchk,3e5);setTimeout(vchk,5e3);

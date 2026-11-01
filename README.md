@@ -8,3 +8,7 @@ Data: ESPN public scoreboard API.
 
 ## Bracket
 Opt-in, lazy-loaded playoff bracket: `#nfl/bracket`, `#nba/bracket`, `#wnba/bracket`, `#mlb/bracket`. Shows projected seeds until playoffs start.
+
+## Updates
+
+Each deploy stamps the commit SHA into `index.html` and `version.json`. The page checks it every 5 min and on tab focus, and shows "New version available" when it differs. No manual version bump needed.
