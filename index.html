@@ -111,6 +111,13 @@ function grp(k,c){
   if(!GM[k]){GM[k]={};(G[k]||"").split("|").forEach(function(x){if(!x)return;var p=x.split(":");p[1].split(" ").forEach(function(a){GM[k][a]=p[0]})})}
   return GM[k][(c.team||{}).abbreviation]||""}
 var TB={"401873049":1,"401873063":1,"401873091":1,"401873119":1,"401873169":1};
+function wx(k,ev,c0){
+  if(k!=="nfl"||!ev.status||ev.status.type.state!=="in")return "";
+  if(c0.venue&&c0.venue.indoor)return "🏟️ Indoors";
+  var w=ev.weather;if(!w||!w.conditionId)return "";
+  var c=String(w.conditionId).toLowerCase(),e=/thunder|storm/.test(c)?"⛈️":/snow|flurr|ice|sleet|wintry/.test(c)?"❄️":/rain|shower|drizzle/.test(c)?"🌧️":/fog|haze|mist|smoke/.test(c)?"🌫️":/wind/.test(c)?"💨":/mostly cloudy|overcast|^cloudy/.test(c)?"☁️":/partly|intermittent|mostly sunny/.test(c)?"⛅":/clear|sunny|fair/.test(c)?(/night|clear/.test(c)?"🌙":"☀️"):"🌡️";
+  if(e==="🌙"&&!/night/.test(c))e="☀️";
+  return e+" "+w.conditionId+(w.temperature!=null?", "+Math.round(w.temperature)+"°":"")}
 function meta(k,cs,ev,L){
   var a=grp(k,cs[0]),b=grp(k,cs[1]),g=a&&b?(a===b?a:a+" vs "+b):a||b||(k==="soccer"?"":""),
   nt=(ev.competitions[0].notes||[])[0],h=nt&&nt.headline||"";
@@ -121,7 +128,7 @@ function meta(k,cs,ev,L){
   bn=[],br=(c0.broadcasts||[]).forEach(function(x){(x.names||[]).forEach(function(n){if(n&&bn.indexOf(n)<0)bn.push(n)})}),
   isBrady=k==="nfl"&&TB[String(ev.id)]&&ev.status&&ev.status.type&&ev.status.type.state!=="post"&&bn.some(function(n){return /^(fox)$/i.test(n)}),
   bc=bn.length?"📺 "+bn.join(", ")+(isBrady?". Tom Brady!":""):"";
-  return [nm,[g,h].filter(Boolean).join(" · "),vn,bc].filter(Boolean).join("\n")}
+  return [nm,[g,h].filter(Boolean).join(" · "),vn,bc,wx(k,ev,c0)].filter(Boolean).join("\n")}
 function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img loading="lazy" width="24" height="24" alt="" src="'+esc(t.logo)+'">':"")+esc(t.shortDisplayName||t.abbreviation||t.displayName)+'<span class="b" aria-hidden="true"></span><span class="w" aria-label="Winner"></span></span><i>'+esc(c.score)+'</i></div>'}
 var DF={weekday:"short",month:"short",day:"numeric"},TF={hour:"numeric",minute:"2-digit"};
 function nxt(o,L,ev){
@@ -160,6 +167,7 @@ function render(o,L,events){
     seen[ev.id]=1;
     if(!x){x=els[ev.id]=document.createElement("article");x.className="c";
       x.innerHTML='<div class="s"><b></b><span class="d"></span></div>'+team(cs[0])+team(cs[1])+'<div class="m"></div>';x.querySelector(".m").textContent=meta(o.k,cs,ev,L);L.g.appendChild(x)}
+    if(o.k==="nfl"){var mm=x.querySelector(".m"),mv=meta(o.k,cs,ev,L);if(mm.textContent!==mv)mm.textContent=mv}
     var isl=st(ev)==="in",bb=x.firstChild.firstChild,bt=isl?"● LIVE":"Final";
     if(bb.textContent!==bt){bb.textContent=bt;bb.className=isl?"lv":""}
     var sit=isl?ev.competitions[0].situation:0,sd=ev.status.type.shortDetail||"",bat="",sx="";
@@ -244,7 +252,7 @@ addEventListener("hashchange",function(){auto=0;route()});
 document.addEventListener("visibilitychange",function(){if(!document.hidden){SP.forEach(function(s){S[s[0]].last=0});tick()}});
 addEventListener("online",function(){SP.forEach(function(s){S[s[0]].fails=0;S[s[0]].last=0});tick()});
 var auto=!location.hash;route();
-var BV="1793557365";
+var BV="1793558591";
 function vchk(){if(document.hidden)return;fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():0}).then(function(j){if(j&&j.v&&j.v!==BV)document.getElementById("nv").hidden=false}).catch(function(){})}
 document.getElementById("nva").onclick=function(e){e.preventDefault();var go=function(){location.replace(location.pathname+"?v="+Date.now()+location.hash)};
 Promise.all([window.caches?caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n)}))}):0,navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}):0]).then(go,go)};
