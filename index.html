@@ -193,11 +193,15 @@ function fetchSport(o){
   var ac=o.ac=new AbortController(),ok=0;
   Promise.all(o.L.map(function(L){return fetch(B+L.path+"/scoreboard",{signal:ac.signal,cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){ok++;if(L===o.L[0])ssn(o,j);render(o,L,j.events||[])}).catch(function(x){if(x&&x.name==="AbortError")throw x})}))
   .then(function(){
-    o.fails=ok?0:o.fails+1;o.last=Date.now();mark(o);
+    o.fails=ok?0:o.fails+1;o.last=Date.now();mark(o);pick();
     if(ok)o.upd=(o.sn?o.sn+" · ":"")+"Updated "+new Date().toLocaleTimeString();
     if(o===act){if(!o.up){if(ok){u.textContent="";u.classList.remove("status")}else{u.textContent="Connection issue, retrying…";u.classList.add("status")}}ftv()}
   }).catch(function(){}).then(function(){o.busy=0});
 }
+function pick(){
+  if(!auto)return;
+  for(var i=0;i<SP.length;i++){var o=S[SP[i][0]];if(!o.last)return;if(o.live){auto=0;if(o!==act){history.replaceState(null,"","#"+o.k);route()}return}}
+  auto=0}
 function tick(){
   clearTimeout(timer);
   if(!document.hidden){
@@ -236,17 +240,17 @@ function route(){
   if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
 }
-addEventListener("hashchange",route);
+addEventListener("hashchange",function(){auto=0;route()});
 document.addEventListener("visibilitychange",function(){if(!document.hidden){SP.forEach(function(s){S[s[0]].last=0});tick()}});
 addEventListener("online",function(){SP.forEach(function(s){S[s[0]].fails=0;S[s[0]].last=0});tick()});
-route();
-var BV="1793508435";
+var auto=!location.hash;route();
+var BV="1793552225";
 function vchk(){if(document.hidden)return;fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():0}).then(function(j){if(j&&j.v&&j.v!==BV)document.getElementById("nv").hidden=false}).catch(function(){})}
 document.getElementById("nva").onclick=function(e){e.preventDefault();var go=function(){location.replace(location.pathname+"?v="+Date.now()+location.hash)};
 Promise.all([window.caches?caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n)}))}):0,navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}):0]).then(go,go)};
 setInterval(vchk,3e5);setTimeout(vchk,5e3);
 document.addEventListener("visibilitychange",vchk);
-SP.forEach(function(s){var o=S[s[0]];if(o!==act)o.last=Date.now()-SLOW+2500});
+if(!auto)SP.forEach(function(s){var o=S[s[0]];if(o!==act)o.last=Date.now()-SLOW+2500});
 })();
 </script>
 </body>
