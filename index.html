@@ -227,7 +227,7 @@ function route(){
   vw.hidden=false;vb.textContent=k==="soccer"?"Champions League":"Bracket";vs.hidden=k!=="soccer";
   va.href="#"+k;vb.href="#"+k+"/bracket";vt.href="#"+k+"/teams";vu.href="#"+k+"/upcoming";vs.href="#"+k+"/table";
   [[va,""],[vb,k==="soccer"?"ucl":"show"],[vu,"up"],[vt,"teams"],[vs,"table"]].forEach(function(x){if(x[1]===m||(!m&&!x[1]))x[0].setAttribute("aria-current","page");else x[0].removeAttribute("aria-current")});
-  act.p.hidden=b;bk.hidden=!b;var up=m==="up";act.p.classList.toggle("up",up);if(act.up!==up){act.up=up;act.last=0;act.L.forEach(function(L){L.pt=0})}ftv();
+  act.p.hidden=b;bk.hidden=!b;var up=m==="up";u.hidden=up;act.p.classList.toggle("up",up);if(act.up!==up){act.up=up;act.last=0;act.L.forEach(function(L){L.pt=0})}ftv();
   if(b)bracket(k,m);else{bsp=0;if(window.BK)BK.hide()}
   tick();
 }
