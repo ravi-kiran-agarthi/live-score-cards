@@ -75,7 +75,7 @@ footer{padding:0 16px 24px;color:var(--mut);font-size:.8rem}footer{min-height:5.
 <main id="m"></main>
 <div id="bk" hidden></div>
 <div id="u" role="status"></div>
-<footer id="ft"><p><b>Abbreviations:</b> <span id="fp"></span></p></footer>
+<footer id="ft" hidden><p><b>Abbreviations:</b> <span id="fp"></span></p></footer>
 <script>
 (function(){
 var B="https://site.api.espn.com/apis/site/v2/sports/",SLOW=60000,
@@ -174,7 +174,7 @@ function render(o,L,events){
   L.e.hidden=all.length>0;L.n=all.length;L.live=live.length;
   if(o.up&&!nxt(o,L,events)&&Date.now()-L.pt>6e5){L.pt=Date.now();probe(o,L,1)}
 }
-function ftv(){ft.hidden=!!act&&bk.hidden&&!act.up&&!act.L.some(function(L){return L.n})}
+function ftv(){ft.hidden=!!act&&(act.up||bk.hidden&&!act.L.some(function(L){return L.n}))}
 function mark(o){
   o.live=o.L.reduce(function(t,L){return t+L.live},0);
   o.a.classList.toggle("live",o.live>0);
