@@ -125,10 +125,10 @@ function team(c){var t=c.team||{};return '<div class="t"><span>'+(t.logo?'<img l
 var DF={weekday:"short",month:"short",day:"numeric"},TF={hour:"numeric",minute:"2-digit"};
 function nxt(o,L,ev){
   var pre=ev.filter(function(x){return x.status&&x.status.type&&x.status.type.state==="pre"}).sort(function(a,b){return new Date(a.date)-new Date(b.date)});
-  if(!pre.length){L.nx.hidden=true;L.nk="";return 0}
+  if(!pre.length)return 0
   var d0=new Date(pre[0].date),ds=d0.toDateString(),home=o.k==="soccer";
   pre=pre.filter(function(x){return new Date(x.date).toDateString()===ds});
-  var k=pre.map(function(x){return x.id}).join();
+  var k=pre.map(function(x){return x.id}).join();L.ids=pre.map(function(x){return x.id});L.none=0;
   if(k!==L.nk){L.nk=k;
     var today=new Date(),istoday=d0.getFullYear()===today.getFullYear()&&d0.getMonth()===today.getMonth()&&d0.getDate()===today.getDate();
     L.nx.firstChild.textContent="Next games: "+d0.toLocaleDateString([],DF)+" ("+pre.length+(pre.length>1?" games)":" game)")+(istoday?", Today!":"");
@@ -147,7 +147,7 @@ function probe(o,L,i){
   var q=d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2);
   fetch(B+L.path+"/scoreboard?dates="+q,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
     if(nxt(o,L,j.events||[]))return;
-    if(i<10)probe(o,L,i+1);else{L.nx.hidden=false;L.nx.firstChild.textContent="No upcoming games found soon.";L.nx.lastChild.textContent="";L.nk=""}
+    if(i<10)probe(o,L,i+1);else{L.nx.hidden=false;L.nx.firstChild.textContent="No upcoming games found soon.";L.nx.lastChild.textContent="";L.nk="";L.ids=0;L.none=1}
   }).catch(function(){L.pt=0})}
 function render(o,L,events){
   var now=Date.now(),td=new Date().toDateString(),seen={},els=L.els,home=o.k==="soccer",
@@ -172,7 +172,11 @@ function render(o,L,events){
   Object.keys(els).forEach(function(id){if(!seen[id]){els[id].remove();delete els[id]}});
   all.forEach(function(ev,i){var x=els[ev.id];if(L.g.children[i]!==x)L.g.insertBefore(x,L.g.children[i]||null)});
   L.e.hidden=all.length>0;L.n=all.length;L.live=live.length;
-  if(o.up&&!nxt(o,L,events)&&Date.now()-L.pt>6e5){L.pt=Date.now();probe(o,L,1)}
+  if(o.up&&!nxt(o,L,events)){
+    var started=L.ids&&events.some(function(x){return L.ids.indexOf(x.id)>=0&&x.status&&x.status.type&&x.status.type.state!=="pre"});
+    if(started){L.nx.hidden=true;L.nk="";L.ids=0;L.pt=0}
+    if(Date.now()-L.pt>(L.nk||L.none?6e5:3e4)){L.pt=Date.now();probe(o,L,1)}
+  }
 }
 function ftv(){ft.hidden=!!act&&(act.up||bk.hidden&&!act.L.some(function(L){return L.n}))}
 function mark(o){
