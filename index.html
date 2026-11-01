@@ -14,7 +14,7 @@
 @media(prefers-color-scheme:dark){:root{--bg:#0b0f14;--fg:#e5e7eb;--card:#151b23;--mut:#9ca3af;--bd:#263040}}
 :root[data-theme=light]{--bg:#f4f5f7;--fg:#111827;--card:#fff;--mut:#6b7280;--bd:#e5e7eb}
 :root[data-theme=dark]{--bg:#0b0f14;--fg:#e5e7eb;--card:#151b23;--mut:#9ca3af;--bd:#263040}
-.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx h3{margin:12px 0 8px;font-size:1rem}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}.rm{display:block;margin-top:8px;min-height:36px;padding:0 12px;border:1px solid var(--bd);border-radius:18px;background:transparent;color:inherit;font:inherit;font-weight:600;cursor:pointer}
+.p.up>section>.g,.p.up>section>.e{display:none}.p:not(.up) .nx{display:none}.nx{margin-top:12px}.nx h3{margin:12px 0 8px;font-size:1rem}.nx p{color:var(--mut);margin:0 0 8px;font-size:.9rem}.nx .c{opacity:.65}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--bd)}
@@ -141,15 +141,8 @@ function nxt(o,L,ev){
       x.className="c";x.innerHTML='<div class="s"><b></b></div>'+team(cs[0])+team(cs[1])+'<div class="m"></div>';
       x.querySelector("b").textContent=dt.toLocaleTimeString([],TF);
       x.querySelectorAll(".t i").forEach(function(i){i.textContent=""});
-      var m=x.querySelector(".m");m.textContent=meta(o.k,cs,ev,L);
-      var bt=document.createElement("button");bt.type="button";bt.className="rm";bt.textContent="⏰ Remind me";
-      var mt=m.textContent;bt.onclick=function(){remind(ev.id,dt,cs[0].team.displayName+" vs "+cs[1].team.displayName,mt)};m.appendChild(bt);g.appendChild(x)})}
+      x.querySelector(".m").textContent=meta(o.k,cs,ev,L);g.appendChild(x)})}
   L.nx.hidden=false;return 1}
-function remind(id,dt,t,d){
-  var f=function(x){return x.toISOString().replace(/[-:]|\.\d+/g,"")},e=new Date(+dt+108e5),
-  esc=function(z){return z.replace(/[\\;,]/g,"\\$&").replace(/\n/g,"\\n")},
-  c=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//live-score-cards//EN","BEGIN:VEVENT","UID:"+id+"@live-score-cards","DTSTAMP:"+f(new Date),"DTSTART:"+f(dt),"DTEND:"+f(e),"SUMMARY:"+esc(t),"DESCRIPTION:"+esc(d),"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+esc(t),"TRIGGER:-PT15M","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n"),
-  a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:"text/calendar"}));a.download="game-"+id+".ics";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},6e4)}
 function probe(o,L,i){
   var d=new Date();d.setDate(d.getDate()+i);
   var q=d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2);
@@ -251,7 +244,7 @@ addEventListener("hashchange",function(){auto=0;route()});
 document.addEventListener("visibilitychange",function(){if(!document.hidden){SP.forEach(function(s){S[s[0]].last=0});tick()}});
 addEventListener("online",function(){SP.forEach(function(s){S[s[0]].fails=0;S[s[0]].last=0});tick()});
 var auto=!location.hash;route();
-var BV="1793557130";
+var BV="1793557365";
 function vchk(){if(document.hidden)return;fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():0}).then(function(j){if(j&&j.v&&j.v!==BV)document.getElementById("nv").hidden=false}).catch(function(){})}
 document.getElementById("nva").onclick=function(e){e.preventDefault();var go=function(){location.replace(location.pathname+"?v="+Date.now()+location.hash)};
 Promise.all([window.caches?caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n)}))}):0,navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}):0]).then(go,go)};
